@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito Variable", ui-rounded, system-ui, sans-serif;
+
+  --color-ink: #1b2559;
+  --color-ink-soft: #3a4478;
+  --color-slate: #5b6488;
+  --color-mist: #9aa3c2;
+  --color-line: #dbe2f1;
+  --color-paper: #eef3fb;
+  --color-card: #ffffff;
+  --color-sun: #ffc83d;
+  --color-sun-deep: #e0a500;
+  --color-sun-soft: #fff4d1;
+  --color-leaf: #1f9d63;
+  --color-leaf-soft: #e1f6ec;
+  --color-tomato: #e5484d;
+  --color-tomato-soft: #fde8e8;
+  --color-sky: #3d6cf0;
+  --color-sky-soft: #e4ebfe;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01";
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-sky);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* možnosť v tréningu: veľká, aby sa dala pohodlne trafiť prstom */
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 3.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1.25rem;
+  background: var(--color-card);
+  border: 2px solid var(--color-line);
+  border-bottom-width: 6px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  text-align: left;
+  color: var(--color-ink);
+  transition:
+    transform 120ms ease,
+    background 120ms ease,
+    border-color 120ms ease;
+}
+.choice:not(:disabled):hover {
+  border-color: var(--color-mist);
+}
+.choice:not(:disabled):active {
+  border-bottom-width: 2px;
+  transform: translateY(4px);
+}
+.choice-ok {
+  background: var(--color-leaf-soft);
+  border-color: var(--color-leaf);
+  color: #14603e;
+}
+.choice-bad {
+  background: var(--color-tomato-soft);
+  border-color: var(--color-tomato);
+  color: #9c2227;
+}
+.choice-dim {
+  opacity: 0.45;
+}
+
+/* krúžok s poradím možnosti */
+.choice-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: var(--color-paper);
+  color: var(--color-slate);
+  font-size: 1rem;
+  font-weight: 900;
+}
+.choice-ok .choice-mark {
+  background: var(--color-leaf);
+  color: #fff;
+}
+.choice-bad .choice-mark {
+  background: var(--color-tomato);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .anim-pop {
+    animation: pop 240ms ease-out;
+  }
+  .anim-shake {
+    animation: shake 300ms ease-in-out;
+  }
+  .anim-rise {
+    animation: rise 260ms ease-out;
+  }
+  .confetti span {
+    animation: fall 1600ms ease-in forwards;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.94);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fall {
+  from {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(105vh) rotate(540deg);
+    opacity: 0.2;
+  }
+}
