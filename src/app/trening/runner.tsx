@@ -7,13 +7,27 @@ import { useState } from "react";
 import { Clock, FACES, HandLegend, type Face } from "@/components/clock";
 import { Card, buttonClass, cx } from "@/components/ui";
 import { playAnswer } from "@/lib/sounds";
-import { LEVELS, type Level, type Question, type Time, buildQuiz, digital, levelDef, readHands, rule, timeWords, whyWrong } from "@/lib/time";
+import {
+  LEVELS,
+  type Format,
+  type Level,
+  type Question,
+  type Time,
+  buildQuiz,
+  digital,
+  levelDef,
+  optionLabel,
+  readHands,
+  rule,
+  timeWords,
+  whyWrong,
+} from "@/lib/time";
 
 const PRAISE = ["Výborne!", "Presne tak!", "Správne!", "Paráda!", "To sedí!", "Bravó!", "Skvelé!"];
 const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 const MARKS = ["A", "B", "C", "D"];
 
-type Miss = { time: Time; picked: Time };
+type Miss = { time: Time; picked: Time; pickedAs: Format };
 
 /**
  * Runner číta nastavenie z adresy a Session drží priebeh tréningu.
@@ -43,7 +57,7 @@ function Session({ face, level, count }: { face: Face; level: Level; count: numb
     const correct = i === q.answer;
     setPicked(i);
     playAnswer(correct);
-    if (!correct) setMisses((m) => [...m, { time: q.time, picked: q.options[i] }]);
+    if (!correct) setMisses((m) => [...m, { time: q.time, picked: q.options[i], pickedAs: q.formats[i] }]);
   }
 
   function next() {
@@ -108,7 +122,7 @@ function Session({ face, level, count }: { face: Face; level: Level; count: numb
             )}
           >
             <span className="choice-mark">{picked !== null && i === q.answer ? <Check className="size-5" /> : picked === i ? <X className="size-5" /> : MARKS[i]}</span>
-            {timeWords(o)}
+            <span className={cx(q.formats[i] === "cislo" && "tabular-nums")}>{optionLabel(o, q.formats[i])}</span>
           </button>
         ))}
       </div>
@@ -182,9 +196,11 @@ function Summary({
               <Card key={i} className="p-3 flex items-center gap-3">
                 <Clock time={m.time} face={face} size={104} className="shrink-0" />
                 <div className="min-w-0">
-                  <p className="font-black text-leaf leading-tight">{timeWords(m.time)}</p>
+                  <p className="font-black text-leaf leading-tight">
+                    {timeWords(m.time)} <span className="text-slate font-bold tabular-nums">· {digital(m.time)}</span>
+                  </p>
                   <p className="text-sm text-slate font-semibold mt-0.5">
-                    tvoja odpoveď: <span className="text-tomato">{timeWords(m.picked)}</span>
+                    tvoja odpoveď: <span className={cx("text-tomato", m.pickedAs === "cislo" && "tabular-nums")}>{optionLabel(m.picked, m.pickedAs)}</span>
                   </p>
                   <p className="text-sm text-ink-soft font-semibold mt-1 leading-snug">{whyWrong(m.picked, m.time)}</p>
                 </div>
