@@ -44,9 +44,12 @@ const FULL: Record<number, string> = {
   12: "dvanásť hodín",
 };
 
-/** Radová číslovka v genitíve/lokáli — „pol **deviatej**“, „po **deviatej**“. */
+/**
+ * Radová číslovka v genitíve/lokáli — „pol **deviatej**“, „po **deviatej**“.
+ * Jednotka je výnimka: hovorí sa „pol jednej“ a „po jednej“, nie „pol prvej“.
+ */
 const ORD_GEN: Record<number, string> = {
-  1: "prvej",
+  1: "jednej",
   2: "druhej",
   3: "tretej",
   4: "štvrtej",
@@ -60,9 +63,9 @@ const ORD_GEN: Record<number, string> = {
   12: "dvanástej",
 };
 
-/** Radová číslovka v inštrumentáli — „pred **deviatou**“. */
+/** Radová číslovka v inštrumentáli — „pred **deviatou**“; jednotka opäť „pred jednou“. */
 const ORD_INS: Record<number, string> = {
-  1: "prvou",
+  1: "jednou",
   2: "druhou",
   3: "treťou",
   4: "štvrtou",
@@ -168,7 +171,15 @@ export function whyWrong(picked: Time, correct: Time): string | null {
 
 /* -------------------------------------------------------------- generovanie */
 
-export type Question = { time: Time; options: Time[]; answer: number };
+/** Možnosť sa ukáže buď slovom („pol desiatej“), alebo číslom („9:30“). */
+export type Format = "slovo" | "cislo";
+
+export type Question = { time: Time; options: Time[]; formats: Format[]; answer: number };
+
+/** Ako často sa medzi možnosťami objaví číselný zápis. */
+const DIGIT_SHARE = 0.09;
+
+export const optionLabel = (t: Time, f: Format) => (f === "cislo" ? digital(t) : timeWords(t));
 
 const shuffle = <T>(a: T[]): T[] => {
   const r = [...a];
@@ -220,7 +231,10 @@ export function buildQuiz(count: number, level: Level): Question[] {
     if (bag.length === 0) bag.push(...shuffle(allTimes(minutes)));
     const time = bag.pop()!;
     const options = shuffle([time, ...distractors(time, minutes)]);
-    out.push({ time, options, answer: options.findIndex((o) => sameTime(o, time)) });
+    // formát sa losuje pre každú možnosť zvlášť a nezávisle od toho, ktorá je správna,
+    // aby číselný zápis nikdy neprezrádzal odpoveď
+    const formats: Format[] = options.map(() => (Math.random() < DIGIT_SHARE ? "cislo" : "slovo"));
+    out.push({ time, options, formats, answer: options.findIndex((o) => sameTime(o, time)) });
   }
   return out;
 }
